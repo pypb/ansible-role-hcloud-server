@@ -1,0 +1,14 @@
+---
+argument_specs:
+  main:
+    options:
+      hcloud_api_token:
+        type: "str"
+        required: true
+      hcloud_server_name:
+        type: "str"
+        required: false
+        default: "inventory_hostname_short"
+      hcloud_server_ssh_keys:
+        type: "list"
+        required: true

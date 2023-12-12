@@ -1,0 +1,12 @@
+---
+hcloud_location: hel1
+hcloud_server_allow_deprecated_image: false
+hcloud_server_backup: false
+hcloud_server_enable_ipv4: true
+hcloud_server_enable_ipv6: true
+hcloud_server_force: false
+hcloud_server_image: ubuntu-22.04
+hcloud_server_state: present
+hcloud_server_type: cx11
+hcloud_server_delete_protection: false
+hcloud_server_upgrade_disk: false

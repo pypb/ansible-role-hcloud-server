@@ -1,0 +1,58 @@
+---
+- name: "Creating Hetzner Cloud server"
+  hetzner.hcloud.hcloud_server:
+    api_token: "{{ hcloud_api_token }}"
+    name: "{{ inventory_hostname_short }}"
+    allow_deprecated_image: "{{ hcloud_server_allow_deprecated_image }}"
+    backups: "{{ hcloud_server_backup }}"
+    delete_protection: "{{ hcloud_server_delete_protection }}"
+    enable_ipv4: "{{ hcloud_server_enable_ipv4 }}"
+    enable_ipv6: "{{ hcloud_server_enable_ipv6 }}"
+    firewalls: "{{ hcloud_server_firewalls | default(omit) }}"
+    force: "{{ hcloud_server_force }}"
+    image: "{{ hcloud_server_image }}"
+    location: "{{ hcloud_location }}"
+    ipv4: "{{ hcloud_server_ipv4 | default(omit) }}"
+    ipv6: "{{ hcloud_server_ipv6 | default(omit) }}"
+    labels: "{{ hcloud_server_labels | default(omit) }}"
+    placement_group: "{{ hcloud_server_placement_group | default(omit) }}"
+    private_networks: "{{ hcloud_server_private_networks | default(omit) }}"
+    server_type: "{{ hcloud_server_type }}"
+    ssh_keys: "{{ hcloud_server_ssh_keys }}"
+    rebuild_protection: "{{ hcloud_server_delete_protection }}"
+    upgrade_disk: "{{ hcloud_server_upgrade_disk }}"
+    state: present
+  delegate_to: localhost
+  register: result
+  when: hcloud_server_state == 'present'
+
+- name: "Extracting IPv4 address"
+  ansible.builtin.set_fact:
+    hcloud_server_ipv4_address: "{{ result.hcloud_server.ipv4_address }}"
+  when: hcloud_server_state == 'present'
+
+- name: "Displaying server information"
+  ansible.builtin.debug:
+    msg: "IPv4 address of server: {{ hcloud_server_ipv4_address }}"
+  when: hcloud_server_state == 'present'
+
+- name: "Associating Hetzner Cloud Network to Server"
+  hetzner.hcloud.hcloud_server_network:
+    api_token: "{{ hetzner_api_token }}"
+    network: "{{ hcloud_network_name }}"
+    ip: "{{ hcloud_server_private_network_ip }}"
+    server: "{{ inventory_hostname_short }}"
+    state: present
+  delegate_to: localhost
+  when:
+    - hcloud_server_state == 'present'
+    - hcloud_server_private_network_ip is defined
+
+- name: "Deleting Hetzner Cloud server"
+  hetzner.hcloud.hcloud_server:
+    api_token: "{{ hcloud_api_token }}"
+    name: "{{ inventory_hostname_short }}"
+    state: absent
+  delegate_to: localhost
+  register: result
+  when: hcloud_server_state == 'absent'
